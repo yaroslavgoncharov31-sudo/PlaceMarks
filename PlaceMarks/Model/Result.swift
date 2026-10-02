@@ -1,6 +1,6 @@
 import Foundation
 
-struct Result: Codable {
+struct WikipediResponse: Codable {
     let query: Query
 }
 

@@ -9,7 +9,7 @@ struct NetworkHelper {
             throw URLError(.badURL)
         }
             let (data, _) = try await URLSession.shared.data(from: url)
-            let items = try JSONDecoder().decode(Result.self, from: data)
+            let items = try JSONDecoder().decode(WikipediResponse.self, from: data)
             return items.query.pages.values.sorted()
     }
 }
