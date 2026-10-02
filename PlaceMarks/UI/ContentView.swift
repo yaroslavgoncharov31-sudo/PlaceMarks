@@ -3,6 +3,8 @@ import MapKit
 
 struct ContentView: View {
     @State private var viewModel = ContentViewModel()
+    @State private var showingPlacesList = false
+
 
     var body: some View {
         Group {
@@ -43,6 +45,30 @@ struct ContentView: View {
                         .toolbar {
                             Button("Change layout", systemImage: "map") {
                                 viewModel.cycleMapStyle()
+                            }
+                            Button("List", systemImage: "list.bullet") {
+                                showingPlacesList = true
+                            }
+
+                        }
+                    }
+                    .sheet(isPresented: $showingPlacesList) {
+                        NavigationStack {
+                            PlacesListView(
+                                locations: viewModel.locations,
+                                onSelect: { selected in
+                                    showingPlacesList = false
+                                    viewModel.selectedLocation = selected
+                                },
+                                onDelete: { deleted in
+                                    viewModel.locations.removeAll { $0.id == deleted.id }
+                                    viewModel.save()
+                                }
+                            )
+                            .toolbar {
+                                ToolbarItem(placement: .cancellationAction) {
+                                    Button("Close") { showingPlacesList = false }
+                                }
                             }
                         }
                     }
