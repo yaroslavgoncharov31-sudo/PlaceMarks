@@ -5,7 +5,6 @@ import LocalAuthentication
 
 @Observable
 final class ContentViewModel {
-
     let context = LAContext()
     var isUnlocked = false
     let position = MapCameraPosition.region(
@@ -52,25 +51,30 @@ final class ContentViewModel {
         }
     }
 
+    func lock() {
+        selectedLocation = nil
+        isUnlocked = false
+    }
+
     func authenticate() {
         var error: NSError?
+            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+                let reason = "Please authenticate yourself to unlock your places"
 
-        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-            let reason = "Please authenticate yourself to unlock your places"
-
-            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
-                Task { @MainActor in
-                    if success {
-                        self.isUnlocked = true
-                        self.authError = nil
-                    } else {
-                        self.authError = self.message(for: authenticationError)
+                context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
+                    Task { @MainActor in
+                        if success {
+                            self.isUnlocked = true
+                            self.authError = nil
+                        } else {
+                            self.authError = self.message(for: authenticationError)
+                        }
                     }
                 }
+            } else {
+                authError = "Set a device passcode in Settings to unlock places."
             }
-        } else {
-            authError = "Set a device passcode in Settings to unlock places."
-        }
+
     }
 
     private func message(for error: Error?) -> String? {

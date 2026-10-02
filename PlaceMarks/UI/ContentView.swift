@@ -4,7 +4,7 @@ import MapKit
 struct ContentView: View {
     @State private var viewModel = ContentViewModel()
     @State private var showingPlacesList = false
-
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
@@ -79,6 +79,12 @@ struct ContentView: View {
                     .background(.blue)
                     .foregroundStyle(.white)
                     .clipShape(.capsule)
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                showingPlacesList = false
+                viewModel.lock()
             }
         }
         .alert("Authentication failed", isPresented: Binding(
